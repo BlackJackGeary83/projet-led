@@ -8,73 +8,24 @@ pixels=NeoPixel(board.D18,60,auto_write=False)
 fps=60
 led_nb=60
 
-class led:
-    def __init__(self):
-        self.state=True
-        self.color=[0,0,0]
-        self.mode=1
-        self.lock=False
-        self.roue=0
+class Pixel:
+    def __init__(self, color , state = False):
+        self.color = color
+        self.state = state
+    def __repr__(self):
+        return str(color)
+    def color_shift(self,shift):
+        self.color += shift
 
-l=led()
 
-def rgb(color, a):
-    if(color[0]==255 and color[1]<255 and color[2]==0):
-        color[1]+=a
-    elif(color[0]>0 and color[1]==255):
-        color[0]-=a
-    elif(color[1]==255 and color[2]<255):
-        color[2]+=a
-    elif(color[1]>0 and color[2]==255):
-        color[1]-=a
-    elif(color[2]==255 and color[0]<255):
-        color[0]+=a
-    elif(color[2]>0 and color[0]==255):
-        color[2]-=a
-    for i in range(3):
-        if(color[i]>255):
-            color[i]=255
-        elif(color[i]<0):
-            color[i]=0
-    return(color)
+class Color:
+    def __init__(self,r,g,b):
+        self.color = [r,g,b]
+    def __add__(self,other): 
+        if not(isinstance(other,Color)):
+            raise TypeError("can't add a color to whatever the fuck you just passed to the function you dumb bitch")
+        return Color(self.color[0]+other.color[0],self.color[1]+other.color[1],self.color[2]+other.color[2])
 
-def update():
-    while(True):
-        if(l.state):
-            if(l.mode=="unicolore"):
-                for i in range(led_nb):
-                    pixels[i]=l.color
-
-            elif(l.mode=="rainbow"):
-                l.color=rgb(l.color,32)
-                pixels[0]=l.color
-                for i in range(1,led_nb):
-                    pixels[led_nb-i]=pixels[led_nb-i-1]
-
-            elif(l.mode=="jaune rouge"):
-                l.roue+=1
-                if(0<=l.roue<10):
-                    l.color=[0,0,0]
-                elif(10<=l.roue<12):
-                    l.color=[0,150,255]
-                else:
-                    l.roue=0
-                    l.color=[0,0,0]
-                pixels[0]=l.color
-                for i in range(1,led_nb):
-                    pixels[led_nb-i]=pixels[led_nb-i-1]
-
-            if(not(l.lock)):
-                pixels.show()
-                    
-        else:
-            for i in range(led_nb):
-                pixels[i]=[0,0,0]
-            pixels.show()
-    
-        sleep(1/fps)
-
-app = Flask(__name__)
 
 @app.route('/')
 def main():
